@@ -64,6 +64,12 @@ wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
 # update
 apt-get update
 
+# install sslh Multi Port
+apt-get install sslh -y
+
+# Konfigurasi sslh
+wget -O /etc/default/sslh "https://raw.githubusercontent.com/janda09/janda/main/repo/sslh"
+
 # install webserver
 apt-get -y install nginx
 
@@ -221,6 +227,16 @@ apt-get -y install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 443 -p 456"/g' /etc/default/dropbear
+
+# update dropbear 2019
+wget https://raw.githubusercontent.com/janda09/janda/blob/main/repo/dropbear-2019.78.tar.bz2
+bzip2 dropbear-2019.78.tar.bz2 | tar xvf -
+cd dropbear-2019.78
+./configure
+make && make install
+mv /usr/sbin/dropbear /usr/sbin/dropbear.old
+ln /usr/local/sbin/dropbear /usr/sbin/dropbear
+
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 /etc/init.d/dropbear restart
@@ -244,7 +260,7 @@ socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 
 [dropbear]
-accept = 444
+accept = 443
 connect = 127.0.0.1:143
 
 [openvpn]
@@ -317,7 +333,7 @@ cat > /root/limit.sh <<END3
 END3
 
 cd /usr/local/bin
-wget -O premi.zip "https://raw.githubusercontent.com/janda09/openvpn/master/premi.zip"
+wget -O premi.zip "https://raw.githubusercontent.com/janda09/janda/blob/main/repo/premi.zip"
 unzip premi.zip
 rm -f premi.zip
 
@@ -353,7 +369,9 @@ service sshd restart
 /etc/init.d/dropbear restart
 /etc/init.d/fail2ban restart
 /etc/init.d/webmin restart
-/etc/init.d/stunnel4 restart
+/etc/init.d/stunnel4 stop
+/etc/init.d/stunnel4 start
+/etc/init.d/sslh restart
 /etc/init.d/squid start
 rm -rf ~/.bash_history && history -c
 echo "unset HISTFILE" >> /etc/profile
@@ -385,10 +403,6 @@ echo 'echo -e "################################################" ' >> /etc/profi
 echo 'echo -e "" ' >> /etc/profile.d/janda.sh
 chmod +x /etc/profile.d/janda.sh
 
-# restaring stunnel4
-
-/etc/init.d/stunnel4 restart
-
 # remove unnecessary files
 apt -y autoremove
 apt -y autoclean
@@ -403,8 +417,8 @@ echo ""  | tee -a log-install.txt
 echo "Service"  | tee -a log-install.txt
 echo "-------"  | tee -a log-install.txt
 echo "OpenSSH  : 22"  | tee -a log-install.txt
-echo "Dropbear : 143, 80, 109, 443, 456"  | tee -a log-install.txt
-echo "SSL      : 444"  | tee -a log-install.txt
+echo "Dropbear : 80, 109, 143, 443, 456"  | tee -a log-install.txt
+echo "SSL      : 443"  | tee -a log-install.txt
 echo "OpenVPNSSL : 442"  | tee -a log-install.txt
 echo "OpenVPN  : TCP 1194"  | tee -a log-install.txt
 echo "Squid3   : 3128, 8080 (limit to IP SSH)"  | tee -a log-install.txt
