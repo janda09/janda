@@ -229,7 +229,7 @@ sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 443 -p 456"/g' /etc/default/dropbear
 
 # update dropbear 2019
-wget https://raw.githubusercontent.com/janda09/janda/blob/main/repo/dropbear-2019.78.tar.bz2
+wget https://raw.githubusercontent.com/janda09/janda/main/repo/dropbear-2019.78.tar.bz2
 bzip2 dropbear-2019.78.tar.bz2 | tar xvf -
 cd dropbear-2019.78
 ./configure
@@ -333,7 +333,7 @@ cat > /root/limit.sh <<END3
 END3
 
 cd /usr/local/bin
-wget -O premi.zip "https://raw.githubusercontent.com/janda09/janda/blob/main/repo/premi.zip"
+wget -O premi.zip "https://raw.githubusercontent.com/janda09/janda/main/repo/premi.zip"
 unzip premi.zip
 rm -f premi.zip
 
@@ -342,20 +342,20 @@ chmod +x /usr/local/bin/*
 cd
 #set auto kill multi login
 cd /usr/bin
-wget -O janda "https://raw.githubusercontent.com/janda09/install/master/set_multilogin_autokill_lib"
+wget -O janda "https://raw.githubusercontent.com/janda09/janda/main/repo/set_multilogin_autokill_lib"
 chmod +x janda
-echo "* * * * * root /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 5; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 10; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 15; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 20; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 25; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 30; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 35; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 40; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 45; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 50; /usr/bin/janda 2" >> /etc/crontab
-echo "* * * * * root sleep 55; /usr/bin/janda 2" >> /etc/crontab
+echo "* * * * * root /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 5; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 10; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 15; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 20; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 25; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 30; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 35; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 40; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 45; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 50; /usr/bin/janda" >> /etc/crontab
+echo "* * * * * root sleep 55; /usr/bin/janda" >> /etc/crontab
 
 # finishing
 cd
