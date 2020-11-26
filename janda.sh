@@ -55,24 +55,15 @@ ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
-# set repo
-echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list.d/webmin.list
-wget "http://www.dotdeb.org/dotdeb.gpg"
-cat dotdeb.gpg | apt-key add -;rm dotdeb.gpg
-wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
-
 # update
 apt-get update
 
-# install webserver
-apt-get -y install nginx
-
 # install essential package
-apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip unrar ssh
+sudo apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip ssh cmake make gcc libc6-dev zlib1g-dev
 
  # Creating a SSH server config using cat eof tricks
- cat <<'MySSHConfig' > /etc/ssh/sshd_config
-# Mod By Janda Baper Group
+cat <<'MySSHConfig' > /etc/ssh/sshd_config
+# Setup By Janda Baper Group
 Port 22
 AddressFamily inet
 ListenAddress 0.0.0.0
@@ -96,82 +87,6 @@ AcceptEnv LANG LC_*
 Subsystem   sftp  /usr/lib/openssh/sftp-server
 MySSHConfig
 
-# install webserver
-cd
-rm /etc/nginx/sites-enabled/default
-rm /etc/nginx/sites-available/default
-wget -O /etc/nginx/nginx.conf "https://raw.githubusercontent.com/janda09/install/master/nginx.conf"
-mkdir -p /home/vps/public_html
-echo "<pre>Setup by Ipang Nett Nott</pre>" > /home/vps/public_html/index.html
-wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/janda09/install/master/vps.conf"
-
-# install openvpn
-apt-get -y install openvpn easy-rsa openssl
-cp -r /usr/share/easy-rsa/ /etc/openvpn
-mkdir /etc/openvpn/easy-rsa/keys
-sed -i 's|export KEY_COUNTRY="US"|export KEY_COUNTRY="ID"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_PROVINCE="CA"|export KEY_PROVINCE="JATIM"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_CITY="SanFrancisco"|export KEY_CITY="KEDIRI"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_ORG="Fort-Funston"|export KEY_ORG="JandaBaper"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_EMAIL="me@myhost.mydomain"|export KEY_EMAIL="zuhriirfan09@gmail.com"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_OU="MyOrganizationalUnit"|export KEY_OU="IPANG"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_NAME="EasyRSA"|export KEY_NAME="IPANG"|' /etc/openvpn/easy-rsa/vars
-sed -i 's|export KEY_OU=changeme|export KEY_OU=IPANG|' /etc/openvpn/easy-rsa/vars
-
-# Create Diffie-Helman Pem
-openssl dhparam -out /etc/openvpn/dh2048.pem 2048
-
-# Create PKI
-cd /etc/openvpn/easy-rsa
-cp openssl-1.0.0.cnf openssl.cnf
-. ./vars
-./clean-all
-export EASY_RSA="${EASY_RSA:-.}"
-"$EASY_RSA/pkitool" --initca $*
-
-# Create key server
-export EASY_RSA="${EASY_RSA:-.}"
-"$EASY_RSA/pkitool" --server server
-
-# Setting KEY CN
-export EASY_RSA="${EASY_RSA:-.}"
-"$EASY_RSA/pkitool" client
-
-# cp /etc/openvpn/easy-rsa/keys/{server.crt,server.key,ca.crt} /etc/openvpn
-cd
-cp /etc/openvpn/easy-rsa/keys/server.crt /etc/openvpn/server.crt
-cp /etc/openvpn/easy-rsa/keys/server.key /etc/openvpn/server.key
-cp /etc/openvpn/easy-rsa/keys/ca.crt /etc/openvpn/ca.crt
-chmod +x /etc/openvpn/ca.crt
-
-# server settings
-cd /etc/openvpn/
-wget -O /etc/openvpn/server.conf "https://raw.githubusercontent.com/janda09/install/master/server.conf"
-systemctl start openvpn@server
-sysctl -w net.ipv4.ip_forward=1
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-iptables -t nat -I POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
-iptables-save > /etc/iptables.up.rules
-wget -O /etc/network/if-up.d/iptables "https://raw.githubusercontent.com/janda09/install/master/iptables"
-chmod +x /etc/network/if-up.d/iptables
-sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn@.service
-systemctl daemon-reload
-/etc/init.d/openvpn restart
-
-# openvpn config
-wget -O /etc/openvpn/client.ovpn "https://raw.githubusercontent.com/janda09/install/master/client.conf"
-sed -i $MYIP2 /etc/openvpn/client.ovpn;
-echo '<ca>' >> /etc/openvpn/client.ovpn
-cat /etc/openvpn/ca.crt >> /etc/openvpn/client.ovpn
-echo '</ca>' >> /etc/openvpn/client.ovpn
-cp client.ovpn /home/vps/public_html/
-wget -O /etc/openvpn/openvpnssl.ovpn "https://raw.githubusercontent.com/janda09/install/master/openvpnssl.conf"
-echo '<ca>' >> /etc/openvpn/openvpnssl.ovpn
-cat /etc/openvpn/ca.crt >> /etc/openvpn/openvpnssl.ovpn
-echo '</ca>' >> /etc/openvpn/openvpnssl.ovpn
-cp openvpnssl.ovpn /home/vps/public_html/
-
 # install badvpn
 cd
 wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/janda09/install/master/badvpn-udpgw"
@@ -182,45 +97,37 @@ sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500' /etc/
 chmod +x /usr/bin/badvpn-udpgw
 screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500
 
-# Install and Configure PPTP VPN
-apt-get install pptpd -y
-cat <<END> /etc/ppp/pptpd-options
-ms-dns 8.8.8.8
-ms-dns 8.8.4.4
-
-END
-
-cat <<END> /etc/pptpd.conf
-localip $MYIP
-remoteip $MYIP-225
-
-END
-pptpd restart 
-cat <<'END'> /etc/sysctl.conf
-net.ipv4.ip_forward=1
-
-END
-sysctl -p
-iptables -P FORWARD ACCEPT
-iptables --table nat -A POSTROUTING -o venet0 -j MASQUERADE
-
-cat <<END> /etc/network/if-pre-up.d/iptablesload
-#!/bin/sh
-iptables-restore < /etc/iptables.rules
-exit 0
-
-END
-chmod +x /etc/network/if-pre-up.d/iptablesload
-sysctl -p
-
 # setting port ssh
 sed -i 's/Port 22/Port 22/g' /etc/ssh/sshd_config
 
+# install sslh multiport
+apt-get -y install sslh
+cat > /etc/default/sslh <<-END
+RUN=yes
+
+DAEMON=/usr/sbin/sslh
+
+DAEMON_OPTS="--user sslh --listen $MYIP2:443 --ssl 127.0.0.1:443 --ssh 127.0.0.1:143 -P --pidfile /var/run/sslh/sslh.pid"
+
+END
+
+/etc/init.d/sslh restart
+
 # install dropbear
+cd
 apt-get -y install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 110 -p 456"/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 110 -p 443"/g' /etc/default/dropbear
+
+# update dropbear 2019
+wget https://matt.ucc.asn.au/dropbear/releases/dropbear-2019.78.tar.bz2
+bzip2 -cd dropbear-2019.78.tar.bz2 | tar xvf -
+cd dropbear-2019.78
+./configure
+make && make install
+mv /usr/sbin/dropbear /usr/sbin/dropbear1
+ln /usr/local/sbin/dropbear /usr/sbin/dropbear
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 /etc/init.d/dropbear restart
@@ -231,26 +138,14 @@ apt-get -y install squid
 wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/janda09/install/master/squid3.conf"
 sed -i $MYIP2 /etc/squid/squid.conf;
 
-# install webmin
-apt-get -y install webmin
-sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
-
 # install stunnel
 apt-get install stunnel4 -y
 cat > /etc/stunnel/stunnel.conf <<-END
+[ssl_frontend]
 cert = /etc/stunnel/stunnel.pem
-client = no
-socket = a:SO_REUSEADDR=1
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
-
-[dropbear]
-accept = 443
-connect = 127.0.0.1:143
-
-[openvpn]
-accept = 442
-connect = 127.0.0.1:1194
+accept  = 127.0.0.1:443
+connect = $MYIP2:143
+ciphers = ALL
 
 END
 
@@ -262,10 +157,7 @@ cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 
 # configure stunnel
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-cd /etc/stunnel/
-wget -O /etc/stunnel/ssl.conf "https://raw.githubusercontent.com/janda09/install/master/ssl.conf"
-sed -i $MYIP2 /etc/stunnel/ssl.conf;
-cp ssl.conf /home/vps/public_html/
+sed -i $MYIP2 /etc/stunnel/stunnel.conf;
 cd
 
 # colored text
@@ -289,14 +181,6 @@ wget -O /etc/bnr "https://raw.githubusercontent.com/janda09/install/master/bnr"
 wget -O /etc/banner "https://raw.githubusercontent.com/janda09/install/master/banner"
 sed -i 's@#Banner@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/bnr"@g' /etc/default/dropbear
-
-# xml parser
-cd
-apt-get install -y libxml-parser-perl
-
-# compress configs
-cd /home/vps/public_html
-zip janda.zip ssl.conf openvpnssl.ovpn client.ovpn
 
 # Installing Premium Script
 cd
@@ -344,16 +228,11 @@ echo "* * * * * root sleep 55; /usr/bin/janda" >> /etc/crontab
 
 # finishing
 cd
-chown -R www-data:www-data /home/vps/public_html
 service cron restart
 service sshd restart
-/etc/init.d/nginx restart
-/etc/init.d/openvpn restart
 /etc/init.d/cron restart
 /etc/init.d/ssh restart
 /etc/init.d/dropbear restart
-/etc/init.d/fail2ban restart
-/etc/init.d/webmin restart
 /etc/init.d/stunnel4 stop
 /etc/init.d/stunnel4 start
 /etc/init.d/sslh restart
@@ -362,12 +241,11 @@ rm -rf ~/.bash_history && history -c
 echo "unset HISTFILE" >> /etc/profile
 
 # grep ports 
+ps -ef | grep sslh
 opensshport="$(netstat -ntlp | grep -i ssh | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 dropbearport="$(netstat -nlpt | grep -i dropbear | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 stunnel4port="$(netstat -nlpt | grep -i stunnel | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
-openvpnport="$(netstat -nlpt | grep -i openvpn | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 squidport="$(cat /etc/squid/squid.conf | grep -i http_port | awk '{print $2}')"
-nginxport="$(netstat -nlpt | grep -i nginx| grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 
 # install neofetch
 curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray"| apt-key add -
@@ -402,14 +280,10 @@ echo ""  | tee -a log-install.txt
 echo "Service"  | tee -a log-install.txt
 echo "-------"  | tee -a log-install.txt
 echo "OpenSSH  : 22"  | tee -a log-install.txt
-echo "Dropbear : 80, 109, 143, 110, 456"  | tee -a log-install.txt
+echo "Dropbear : 80, 109, 143, 110, 443"  | tee -a log-install.txt
 echo "SSL      : 443"  | tee -a log-install.txt
-echo "OpenVPNSSL : 442"  | tee -a log-install.txt
-echo "OpenVPN  : TCP 1194"  | tee -a log-install.txt
 echo "Squid3   : 3128, 8080 (limit to IP SSH)"  | tee -a log-install.txt
-echo "Config VPN: http://$MYIP:81/janda.zip"  | tee -a log-install.txt
 echo "badvpn   : badvpn-udpgw port 7500"  | tee -a log-install.txt
-echo "nginx    : 81"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "Script"  | tee -a log-install.txt
 echo "------"  | tee -a log-install.txt
@@ -417,15 +291,13 @@ echo "menu (Displays a list of available commands)"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "Other features"  | tee -a log-install.txt
 echo "----------"  | tee -a log-install.txt
-echo "Webmin   : http://$MYIP:10000/"  | tee -a log-install.txt
 echo "Timezone : Asia/Jakarta (GMT +7)"  | tee -a log-install.txt
 echo "IPv6     : [off]"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
-echo "Original Script by Fornesia, Rzengineer & Fawzya"  | tee -a log-install.txt
-echo "Mod by Janda Baper Group"  | tee -a log-install.txt
+echo "Setup By Janda Baper Group"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "Installation Log --> /root/log-install.txt"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "==========================================="  | tee -a log-install.txt
 cd
-rm -f /root/install.sh
+rm -f /root/janda.sh
