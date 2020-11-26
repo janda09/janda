@@ -135,7 +135,7 @@ cd
 
 # install squid
 apt-get -y install squid
-wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/janda09/install/master/squid3.conf"
+wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/janda09/janda/main/repo/squid3.conf"
 sed -i $MYIP2 /etc/squid/squid.conf;
 
 # install stunnel
