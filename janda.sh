@@ -143,20 +143,22 @@ sed -i $MYIP2 /etc/squid/squid.conf;
 
 # install stunnel
 apt-get install stunnel4 -y
+
+# configur certifikate stunnel
+openssl genrsa -out key.pem 2048
+openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
+-subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
+cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
+
+# Configure config stunnel
 cat > /etc/stunnel/stunnel.conf <<-END
 [ssl_frontend]
 cert = /etc/stunnel/stunnel.pem
 accept  = 127.0.0.1:443
 connect = $MYIP:143
 ciphers = ALL
-
+client = no
 END
-
-# make a certificate
-openssl genrsa -out key.pem 2048
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
--subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
-cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 
 # configure stunnel
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
