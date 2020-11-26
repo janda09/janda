@@ -402,7 +402,7 @@ echo ""  | tee -a log-install.txt
 echo "Service"  | tee -a log-install.txt
 echo "-------"  | tee -a log-install.txt
 echo "OpenSSH  : 22"  | tee -a log-install.txt
-echo "Dropbear : 80, 109, 143, 443, 456"  | tee -a log-install.txt
+echo "Dropbear : 80, 109, 143, 110, 456"  | tee -a log-install.txt
 echo "SSL      : 443"  | tee -a log-install.txt
 echo "OpenVPNSSL : 442"  | tee -a log-install.txt
 echo "OpenVPN  : TCP 1194"  | tee -a log-install.txt
