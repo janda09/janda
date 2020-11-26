@@ -20,6 +20,9 @@ organizationalunit=NETT
 commonname=IPANG
 email=jandabaper09@gmail.com
 
+# setting hostname
+hostnamectl set-hostname ipang
+
 # configure rc.local
 cat <<EOF >/etc/rc.local
 #!/bin/sh -e
