@@ -64,12 +64,6 @@ wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
 # update
 apt-get update
 
-# install sslh Multi Port
-apt-get install sslh -y
-
-# Konfigurasi sslh
-wget -O /etc/default/sslh "https://raw.githubusercontent.com/janda09/janda/main/repo/sslh"
-
 # install webserver
 apt-get -y install nginx
 
@@ -226,20 +220,7 @@ sed -i 's/Port 22/Port 22/g' /etc/ssh/sshd_config
 apt-get -y install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 443 -p 456"/g' /etc/default/dropbear
-
-# update dropbear 2019
-apt-get install zlib1g-dev -y
-apt-get install gcc -y
-sudo apt-get install build-essential
-wget https://raw.githubusercontent.com/janda09/janda/main/repo/dropbear-2019.78.tar.bz2
-tar xjf dropbear-2019.78.tar.bz2
-cd dropbear-2019.78
-./configure
-make && make install
-mv /usr/sbin/dropbear /usr/sbin/dropbear-old
-ln /usr/local/sbin/dropbear /usr/sbin/dropbear
-
+sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 80 -p 109 -p 110 -p 456"/g' /etc/default/dropbear
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 /etc/init.d/dropbear restart
