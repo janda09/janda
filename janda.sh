@@ -110,7 +110,7 @@ RUN=yes
 
 DAEMON=/usr/sbin/sslh
 
-DAEMON_OPTS="--user sslh --listen $MYIP2:443 --ssl 127.0.0.1:443 --ssh 127.0.0.1:143 -P --pidfile /var/run/sslh/sslh.pid"
+DAEMON_OPTS="--user sslh --listen $MYIP:443 --ssl 127.0.0.1:443 --ssh 127.0.0.1:143 -P --pidfile /var/run/sslh/sslh.pid"
 
 END
 
@@ -147,7 +147,7 @@ cat > /etc/stunnel/stunnel.conf <<-END
 [ssl_frontend]
 cert = /etc/stunnel/stunnel.pem
 accept  = 127.0.0.1:443
-connect = $MYIP2:143
+connect = $MYIP:143
 ciphers = ALL
 
 END
@@ -160,7 +160,6 @@ cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 
 # configure stunnel
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-sed -i $MYIP2 /etc/stunnel/stunnel.conf;
 cd
 
 # colored text
