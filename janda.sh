@@ -146,18 +146,32 @@ apt-get install stunnel4 -y
 
 # configur certifikate stunnel
 openssl genrsa -out key.pem 2048
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
+openssl req -new -x509 -key key.pem -out cert.crt -days 1095 \
 -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
-cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
+cp /root/key.pem /etc/stunnel/key.pem
+cp /root/cert.crt /etc/stunnel/cert.crt
 
 # Configure config stunnel
 cat > /etc/stunnel/stunnel.conf <<-END
+pid = /var/run/stunnel.pid
+socket = a:SO_REUSEADDR=1
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+debug = 2
+
 [ssl_frontend]
-cert = /etc/stunnel/stunnel.pem
+key = /etc/stunnel/key.pem
+cert = /etc/stunnel/cert.crt
 accept  = 127.0.0.1:443
 connect = $MYIP:143
 ciphers = ALL
 client = no
+;sessiond = 127.0.0.1:443
+;session = 60
+TIMEOUTconnect = 5
+TIMEOUTbusy = 25
+TIMEOUTidle = 25
+TIMEOUTclose = 0
 END
 
 # configure stunnel
