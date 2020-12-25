@@ -64,7 +64,13 @@ apt-get update
 # install essential package
 sudo apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip ssh cmake make gcc libc6-dev zlib1g-dev
 
- # Creating a SSH server config using cat eof tricks
+# install neofetch
+echo "deb http://dl.bintray.com/dawidd6/neofetch jessie main" | tee -a /etc/apt/sources.list
+curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray"| apt-key add -
+apt-get update
+apt-get install neofetch
+
+# Creating a SSH server config using cat eof tricks
 cat <<'MySSHConfig' > /etc/ssh/sshd_config
 # Setup By Janda Baper Group
 Port 22
@@ -227,6 +233,22 @@ rm -f premi.zip
 cp /usr/local/bin/premium-script /usr/local/bin/menu
 chmod +x /usr/local/bin/*
 cd
+
+# blockir torrent
+iptables -A OUTPUT -p tcp --dport 6881:6889 -j DROP
+iptables -A OUTPUT -p udp --dport 1024:65534 -j DROP
+iptables -A FORWARD -m string --string "get_peers" --algo bm -j DROP
+iptables -A FORWARD -m string --string "announce_peer" --algo bm -j DROP
+iptables -A FORWARD -m string --string "find_node" --algo bm -j DROP
+iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
+iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
+iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
+iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
+iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
+
 #set auto kill multi login
 cd /usr/bin
 wget -O janda "https://raw.githubusercontent.com/janda09/janda/main/repo/set_multilogin_autokill_lib"
@@ -264,12 +286,6 @@ opensshport="$(netstat -ntlp | grep -i ssh | grep -i 0.0.0.0 | awk '{print $4}' 
 dropbearport="$(netstat -nlpt | grep -i dropbear | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 stunnel4port="$(netstat -nlpt | grep -i stunnel | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
 squidport="$(cat /etc/squid/squid.conf | grep -i http_port | awk '{print $2}')"
-
-# install neofetch
-curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray"| apt-key add -
-apt-get update
-apt-get install neofetch
-apt-get install vnstat -y
 
 # Creating Profile Info
 echo 'clear' > /etc/profile.d/janda.sh
