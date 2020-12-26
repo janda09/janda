@@ -122,6 +122,7 @@ sed -i 's/Port 22/Port 22/g' /etc/ssh/sshd_config
 # install sslh multiport
 apt-get -y install sslh
 cat > /etc/default/sslh <<-END
+#Mod By Janda Baper Group
 RUN=yes
 
 DAEMON=/usr/sbin/sslh
@@ -224,7 +225,6 @@ sed -i '$ i\screen -AmdS ban /root/ban.sh' /etc/rc.local
 sed -i '$ i\screen -AmdS limit /root/limit.sh' /etc/rc.d/rc.local
 sed -i '$ i\screen -AmdS ban /root/ban.sh' /etc/rc.d/rc.local
 echo "0 0 * * * root /usr/local/bin/user-expire" > /etc/cron.d/user-expire
-echo "0 0 * * * root /usr/local/bin/user-expire-pptp" > /etc/cron.d/user-expire-pptp
 
 cat > /root/ban.sh <<END3
 #!/bin/bash
