@@ -58,11 +58,21 @@ ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
+# setting repo ke unej
+cp /etc/apt/sources.list /etc/apt/soutces.list-original
+sudo echo > /etc/apt/sources.list
+cat <<REPO' > /etc/apt/sources.list
+# Mod By Janda Baper Group
+deb http://mirror.unej.ac.id/debian/ stretch main contrib non-free
+deb http://mirror.unej.ac.id/debian/ stretch-updates main contrib non-free
+deb http://mirror.unej.ac.id/debian-security/ stretch/updates main contrib non-free
+REPO
+
 # update
 apt-get update
 
 # install essential package
-sudo apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip ssh cmake make gcc libc6-dev zlib1g-dev
+sudo apt-get -y install nano iptables-persistent dnsutils screen whois ngrep unzip ssh cmake make gcc libc6-dev zlib1g-dev net-tools
 
 # install neofetch
 echo "deb http://dl.bintray.com/dawidd6/neofetch jessie main" | tee -a /etc/apt/sources.list
@@ -159,6 +169,7 @@ cp /root/cert.crt /etc/stunnel/cert.crt
 
 # Configure config stunnel
 cat > /etc/stunnel/stunnel.conf <<-END
+# Setup By Janda Baper Group
 pid = /var/run/stunnel.pid
 socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
@@ -316,7 +327,7 @@ echo "-------"  | tee -a log-install.txt
 echo "OpenSSH  : 22"  | tee -a log-install.txt
 echo "Dropbear : 80, 109, 143, 110, 443"  | tee -a log-install.txt
 echo "SSL      : 443"  | tee -a log-install.txt
-echo "Squid3   : 3128, 8080 (limit to IP SSH)"  | tee -a log-install.txt
+echo "Squid    : 3128, 8080 (limit to IP SSH)"  | tee -a log-install.txt
 echo "badvpn   : badvpn-udpgw port 7500"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "Script"  | tee -a log-install.txt
