@@ -59,14 +59,14 @@ ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
 # setting repo ke unej
-cp /etc/apt/sources.list /etc/apt/soutces.list-original
-sudo echo > /etc/apt/sources.list
-cat <<REPO' > /etc/apt/sources.list
+#cp /etc/apt/sources.list /etc/apt/soutces.list-original
+#sudo echo > /etc/apt/sources.list
+#cat <<REPO' > /etc/apt/sources.list
 # Mod By Janda Baper Group
-deb http://mirror.unej.ac.id/debian/ stretch main contrib non-free
-deb http://mirror.unej.ac.id/debian/ stretch-updates main contrib non-free
-deb http://mirror.unej.ac.id/debian-security/ stretch/updates main contrib non-free
-REPO
+#deb http://mirror.unej.ac.id/debian/ stretch main contrib non-free
+#deb http://mirror.unej.ac.id/debian/ stretch-updates main contrib non-free
+#deb http://mirror.unej.ac.id/debian-security/ stretch/updates main contrib non-free
+#REPO
 
 # update
 apt-get update
