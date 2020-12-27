@@ -27,6 +27,7 @@ hostnamectl set-hostname ipang
 cat <<EOF >/etc/rc.local
 #!/bin/sh -e
 #
+# Mod By Janda Baper Group
 # rc.local
 #
 # This script is executed at the end of each multiuser runlevel.
